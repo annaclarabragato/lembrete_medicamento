@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gerenciador_tarefas_si7/pages/filtro_page.dart';
-import 'package:gerenciador_tarefas_si7/pages/lista_tarefas_page.dart';
+import 'package:lembrete_medicamento/page/dados_pessoais_page.dart';
 import 'package:lembrete_medicamento/page/lembrete_med_page.dart';
 
 void main() {
@@ -14,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'App Gerenciador de Tarefas',
+        title: 'Pink Pill - Lembrete',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
         ),
         home: LembreteMedPage(),
         routes: {
-          FiltroPage.ROUTE_NAME: (BuildContext context) => FiltroPage(),
+          DadosPessoaisPage.ROUTE_NAME: (BuildContext context) => DadosPessoaisPage(),
         }
     );
   }
