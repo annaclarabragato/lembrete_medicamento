@@ -8,7 +8,6 @@ plugins {
 android {
     namespace = "com.example.lembrete_medicamento"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

@@ -29,7 +29,7 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
           _abrirForm(lembreteAtual: Lembrete(id: 0, descricao: '', datahora: null));
         },
         tooltip: 'Novo lembrete',
-        backgroundColor: Colors.pinkAccent,
+        backgroundColor: Colors.pink[300]!,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -37,7 +37,7 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
 
   AppBar _criarAppBar() {
     return AppBar(
-      backgroundColor: Colors.pinkAccent,
+      backgroundColor: Colors.pink[300]!,
       centerTitle: true,
       title: const Text(
         '🌸 Pink Pill - Lembrete 🌸',
@@ -64,9 +64,9 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
           children: [
             Icon(Icons.favorite, color: Colors.pink[300], size: 60),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Nenhum lembrete cadastrado!',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.pinkAccent),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.pink[300]),
             ),
           ],
         ),
@@ -87,7 +87,7 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
           color: Colors.pink[100],
           child: ListTile(
             contentPadding: const EdgeInsets.all(15),
-            leading: const Icon(Icons.notifications, color: Colors.pinkAccent, size: 30),
+            leading: Icon(Icons.notifications, color: Colors.pink[300], size: 30),
             title: Text(
               lembrete.descricao,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -133,7 +133,7 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Não', style: TextStyle(color: Colors.pinkAccent)),
+              child: Text('Não', style: TextStyle(color: Colors.pink[300])),
             ),
             TextButton(
               onPressed: () {
@@ -152,12 +152,12 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
 
   List<PopupMenuEntry<String>> criarMenuPopUp() {
     return [
-      const PopupMenuItem<String>(
+      PopupMenuItem<String>(
         value: ACAO_EDITAR,
         child: Row(
           children: [
-            Icon(Icons.edit, color: Colors.pinkAccent),
-            Padding(
+            Icon(Icons.edit, color: Colors.pink[300]),
+            const Padding(
               padding: EdgeInsets.only(left: 10),
               child: Text('Editar'),
             ),
@@ -189,16 +189,16 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
           backgroundColor: Colors.pink[50],
           title: Text(
             indice == null ? 'Novo lembrete' : 'Alterar lembrete ${lembreteAtual.id}',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pinkAccent),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink[300]),
           ),
           content: ConteudoFormDialog(key: key, lembreteAtual: lembreteAtual),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar', style: TextStyle(color: Colors.pinkAccent)),
+              child: Text('Cancelar', style: TextStyle(color: Colors.pink[300])),
             ),
             TextButton(
-              child: const Text('Salvar', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pinkAccent)),
+              child: Text('Salvar', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.pink[300])),
               onPressed: () {
                 if (key.currentState != null && key.currentState!.dadosValidados()) {
                   setState(() {

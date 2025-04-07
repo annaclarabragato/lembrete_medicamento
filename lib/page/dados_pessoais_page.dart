@@ -57,7 +57,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: false,
-          backgroundColor: Colors.pinkAccent,
+          backgroundColor: Colors.pink[300],
           title: const Text(
             '❥ Dados Pessoais',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
