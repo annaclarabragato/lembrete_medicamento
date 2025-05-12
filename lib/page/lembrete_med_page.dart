@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lembrete_medicamento/page/dados_pessoais_page.dart';
-import 'package:lembrete_medicamento/widgets/conteudo_form_dialog.dart';
-import 'package:lembrete_medicamento/model/lembrete.dart';
 import 'package:intl/intl.dart';
+import 'package:lembrete_medicamento/model/lembrete.dart';
+import 'package:lembrete_medicamento/widgets/conteudo_form_dialog.dart';
+import 'package:lembrete_medicamento/dao/lembrete_dao.dart';  // Importando o LembreteDao
 
 class LembreteMedPage extends StatefulWidget {
   @override
@@ -14,14 +14,31 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
   static const ACAO_EXCLUIR = 'excluir';
 
   final lembretes = <Lembrete>[];
-  var _ultimoId = 0;
+  final _dao = LembreteDao();
   final _dateFormat = DateFormat('dd/MM/yyyy');
   final _timeFormat = DateFormat('HH:mm');
+  bool _carregando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarLembretes();
+  }
+
+  // Função para carregar lembretes do banco de dados
+  void _carregarLembretes() async {
+    final listaLembretes = await _dao.listar(filtro: '');
+    setState(() {
+      lembretes.clear();
+      lembretes.addAll(listaLembretes);
+      _carregando = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.pink[50], // Fundo rosa claro
+      backgroundColor: Colors.pink[50],
       appBar: _criarAppBar(),
       body: _criarBody(),
       floatingActionButton: FloatingActionButton(
@@ -43,20 +60,14 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
         '🌸 Pink Pill - Lembrete 🌸',
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       ),
-      actions: [
-        IconButton(
-          onPressed: _abrirDadosPessoais,
-          icon: const Icon(Icons.person, color: Colors.white),
-        )
-      ],
     );
   }
 
-  void _abrirDadosPessoais() {
-    Navigator.of(context).pushNamed(DadosPessoaisPage.ROUTE_NAME);
-  }
-
   Widget _criarBody() {
+    if (_carregando) {
+      return Center(child: CircularProgressIndicator());
+    }
+
     if (lembretes.isEmpty) {
       return Center(
         child: Column(
@@ -72,12 +83,12 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
         ),
       );
     }
+
     return ListView.separated(
       padding: const EdgeInsets.all(10),
       itemCount: lembretes.length,
       itemBuilder: (BuildContext context, int index) {
         final lembrete = lembretes[index];
-
         final dataTexto = lembrete.datahora != null ? _dateFormat.format(lembrete.datahora!) : 'Sem data';
         final horaTexto = lembrete.datahora != null ? _timeFormat.format(lembrete.datahora!) : 'Sem horário';
 
@@ -102,7 +113,7 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
                 if (valorSelecionado == ACAO_EDITAR) {
                   _abrirForm(lembreteAtual: lembrete, indice: index);
                 } else {
-                  _excluir(index);
+                  _excluir(lembrete);
                 }
               },
             ),
@@ -113,41 +124,31 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
     );
   }
 
-  void _excluir(int indice) {
-    showDialog(
+  void _excluir(Lembrete lembrete) async {
+    final confirmacao = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          backgroundColor: Colors.pink[50],
-          title: const Row(
-            children: [
-              Icon(Icons.warning, color: Colors.red),
-              Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: Text('Atenção', style: TextStyle(color: Colors.red)),
-              ),
-            ],
-          ),
-          content: const Text('Deseja realmente excluir esse lembrete?', style: TextStyle(fontSize: 16)),
+          title: const Text('Excluir Lembrete'),
+          content: const Text('Deseja excluir este lembrete?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Não', style: TextStyle(color: Colors.pink[300])),
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  lembretes.removeAt(indice);
-                });
-              },
-              child: const Text('Sim', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Sim'),
             ),
           ],
         );
       },
     );
+
+    if (confirmacao == true) {
+      await _dao.remover(lembrete.id!);
+      _carregarLembretes();
+    }
   }
 
   List<PopupMenuEntry<String>> criarMenuPopUp() {
@@ -204,10 +205,13 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
                   setState(() {
                     final novoLembrete = key.currentState!.novoLembrete;
                     if (indice == null) {
-                      novoLembrete.id = ++_ultimoId;
-                      lembretes.add(novoLembrete);
+                      _dao.salvar(novoLembrete).then((_) {
+                        _carregarLembretes();
+                      });
                     } else {
-                      lembretes[indice] = novoLembrete;
+                      _dao.salvar(novoLembrete).then((_) {
+                        _carregarLembretes();
+                      });
                     }
                   });
                 }
