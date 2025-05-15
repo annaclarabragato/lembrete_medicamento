@@ -4,7 +4,7 @@ class Lembrete {
 
   static const CAMPO_ID = '_id';
   static const CAMPO_DESCRICAO = 'descrição';
-  static const CAMPO_DATAHORA = 'data e hora';
+  static const CAMPO_DATAHORA = 'datahora';
   static const nomeTabela = 'lembrete';
 
   int id;
