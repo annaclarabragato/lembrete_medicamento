@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lembrete_medicamento/model/lembrete.dart';
 import 'package:lembrete_medicamento/widgets/conteudo_form_dialog.dart';
-import 'package:lembrete_medicamento/dao/lembrete_dao.dart';  // Importando o LembreteDao
+import 'package:lembrete_medicamento/dao/lembrete_dao.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LembreteMedPage extends StatefulWidget {
   @override
@@ -22,10 +23,41 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
   @override
   void initState() {
     super.initState();
-    _carregarLembretes();
+    _verificarPermissaoLocalizacao();
   }
 
-  // Função para carregar lembretes do banco de dados
+  void _verificarPermissaoLocalizacao() async {
+    final status = await Permission.location.request();
+
+    if (status.isGranted) {
+      _carregarLembretes();
+    } else if (status.isDenied || status.isPermanentlyDenied) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('Permissão necessária'),
+          content: const Text(
+            'Este aplicativo requer acesso à localização para funcionar corretamente. Por favor, conceda a permissão.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await openAppSettings();
+              },
+              child: const Text('Abrir configurações'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Fechar'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   void _carregarLembretes() async {
     final listaLembretes = await _dao.listar(filtro: '');
     setState(() {
@@ -204,15 +236,9 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
                 if (key.currentState != null && key.currentState!.dadosValidados()) {
                   setState(() {
                     final novoLembrete = key.currentState!.novoLembrete;
-                    if (indice == null) {
-                      _dao.salvar(novoLembrete).then((_) {
-                        _carregarLembretes();
-                      });
-                    } else {
-                      _dao.salvar(novoLembrete).then((_) {
-                        _carregarLembretes();
-                      });
-                    }
+                    _dao.salvar(novoLembrete).then((_) {
+                      _carregarLembretes();
+                    });
                   });
                 }
                 Navigator.of(context).pop();
