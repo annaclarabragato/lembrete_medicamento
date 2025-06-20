@@ -4,6 +4,8 @@ import 'package:lembrete_medicamento/model/lembrete.dart';
 import 'package:lembrete_medicamento/widgets/conteudo_form_dialog.dart';
 import 'package:lembrete_medicamento/dao/lembrete_dao.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LembreteMedPage extends StatefulWidget {
   @override
@@ -18,6 +20,7 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
   final _dao = LembreteDao();
   final _dateFormat = DateFormat('dd/MM/yyyy');
   final _timeFormat = DateFormat('HH:mm');
+  final _apiUrl = 'https://exemplo.com/api/lembretes'; // Substitua pela URL real
   bool _carregando = true;
 
   @override
@@ -59,12 +62,30 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
   }
 
   void _carregarLembretes() async {
-    final listaLembretes = await _dao.listar(filtro: '');
-    setState(() {
-      lembretes.clear();
-      lembretes.addAll(listaLembretes);
-      _carregando = false;
-    });
+    try {
+      final response = await http.get(Uri.parse(_apiUrl));
+
+      if (response.statusCode == 200) {
+        final dados = json.decode(response.body) as List;
+        final listaLembretes = dados.map((json) => Lembrete.fromJson(json)).toList();
+
+        setState(() {
+          lembretes.clear();
+          lembretes.addAll(listaLembretes.cast<Lembrete>());
+          _carregando = false;
+        });
+      } else {
+        throw Exception('Erro ao carregar da API');
+      }
+    } catch (e) {
+      print('Erro na API: $e');
+      final listaLocal = await _dao.listar(filtro: '');
+      setState(() {
+        lembretes.clear();
+        lembretes.addAll(listaLocal);
+        _carregando = false;
+      });
+    }
   }
 
   @override

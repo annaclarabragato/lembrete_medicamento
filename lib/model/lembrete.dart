@@ -43,4 +43,12 @@ class Lembrete {
         : DateFormat("dd/MM/yyyy HH:mm").parse(map[CAMPO_DATAHORA]),
   );
 
+  factory Lembrete.fromJson(Map<String, dynamic> json) {
+    return Lembrete(
+      id: json['id'],
+      descricao: json['descricao'],
+      datahora: json['datahora'] != null ? DateTime.parse(json['datahora']) : null,
+    );
+  }
+
 }
