@@ -7,6 +7,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'dados_pessoais_page.dart';
+
 class LembreteMedPage extends StatefulWidget {
   @override
   _LembreteMedPageState createState() => _LembreteMedPageState();
@@ -62,31 +64,25 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
   }
 
   void _carregarLembretes() async {
+    setState(() {
+      _carregando = true;
+    });
+
     try {
-      final response = await http.get(Uri.parse(_apiUrl));
-
-      if (response.statusCode == 200) {
-        final dados = json.decode(response.body) as List;
-        final listaLembretes = dados.map((json) => Lembrete.fromJson(json)).toList();
-
-        setState(() {
-          lembretes.clear();
-          lembretes.addAll(listaLembretes.cast<Lembrete>());
-          _carregando = false;
-        });
-      } else {
-        throw Exception('Erro ao carregar da API');
-      }
-    } catch (e) {
-      print('Erro na API: $e');
       final listaLocal = await _dao.listar(filtro: '');
       setState(() {
         lembretes.clear();
         lembretes.addAll(listaLocal);
         _carregando = false;
       });
+    } catch (e) {
+      print('Erro ao carregar lembretes do banco local: $e');
+      setState(() {
+        _carregando = false;
+      });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -113,8 +109,22 @@ class _LembreteMedPageState extends State<LembreteMedPage> {
         '🌸 Pink Pill - Lembrete 🌸',
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.person, color: Colors.white),
+          tooltip: 'Dados pessoais',
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => DadosPessoaisPage(),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
+
 
   Widget _criarBody() {
     if (_carregando) {
